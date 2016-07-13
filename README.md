@@ -58,7 +58,7 @@ http {
     server {
         listen       8080;
         server_name  localhost;
-        root /Users/jothi/Projects/Sandbox/my-app;
+        root /path/to/angular/js/static/files/; # add client root folder path
 
         #charset koi8-r;
 
@@ -113,3 +113,16 @@ http {
 
 So effectively any request to /api will be reouted to the REST API backend server and any request coming in at port 8080 
 will be served by the static AngularJS application.
+
+To test this, do the following:
+
+1. clone the static client git clone https://github.com/joesan/angular-js-static.git to a folder of your choice
+2. clone the REST API server git clone https://github.com/joesan/play-2.5-cors-filter.git to a folder of your choice
+3. Add the location of the client root folder to the nginx.conf (see # add client root folder path) above
+4. Start NGINX web server
+   sudo nginx -s stop && sudo nginx
+5. Start REST API server 
+   sbt run
+6. Access the localhost
+   http://localhost:8080
+
