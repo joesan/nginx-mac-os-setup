@@ -21,6 +21,7 @@ Setting up NGINX server on Mac OS X El Kapitan
    following nginx.conf shows one such reverse proxy routing to a REST API that runs on port 9000
    
  ```  
+
 #user  nobody;
 worker_processes  1;
 
@@ -57,17 +58,20 @@ http {
     server {
         listen       8080;
         server_name  localhost;
-        root /Users/joesan/Projects/Sandbox/my-app;
+        root /Users/jothi/Projects/Sandbox/my-app;
 
         #charset koi8-r;
 
         access_log  logs/host.access.log  main;
 
-        location / {
-                # If you want to enable html5Mode(true) in your angularjs app for pretty URL
-                # then all request for your angularJS app will be through index.html
-                try_files $uri /index.html;
-        }
+	#
+	# Wide-open CORS config for nginx
+	#
+	location / {
+	     	add_header 'Access-Control-Allow-Origin' '*';
+		add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS';
+		add_header 'Access-Control-Allow-Headers' 'DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type';
+	}
 
         # /api will server your proxied API that is running on same machine different port
         # or another machine. So you can protect your API endpoint not get hit by public directly
@@ -80,9 +84,13 @@ http {
                 proxy_cache_bypass $http_upgrade;
                 proxy_set_header X-Real-IP $remote_addr;
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+	    add_header Access-Control-Allow-Origin *;
+
+            proxy_set_header Access-Control-Allow-Origin $http_origin;
         }
 
-        #error_page  404              /404.html;
+        error_page  404              /404.html;
 
         # redirect server error pages to the static page /50x.html
         #
@@ -90,22 +98,6 @@ http {
         location = /50x.html {
             root   html;
         }
-
-        # proxy the PHP scripts to Apache listening on 127.0.0.1:80
-        #
-        #location ~ \.php$ {
-        #    proxy_pass   http://127.0.0.1;
-        #}
-
-        # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-        #
-        #location ~ \.php$ {
-        #    root           html;
-        #    fastcgi_pass   127.0.0.1:9000;
-        #    fastcgi_index  index.php;
-        #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
-        #    include        fastcgi_params;
-        #}
 
         # deny access to .htaccess files, if Apache's document root
         # concurs with nginx's one
@@ -115,41 +107,6 @@ http {
         #}
     }
 
-
-    # another virtual host using mix of IP-, name-, and port-based configuration
-    #
-    #server {
-    #    listen       8000;
-    #    listen       somename:8080;
-    #    server_name  somename  alias  another.alias;
-
-    #    location / {
-    #        root   html;
-    #        index  index.html index.htm;
-    #    }
-    #}
-
-
-    # HTTPS server
-    #
-    #server {
-    #    listen       443 ssl;
-    #    server_name  localhost;
-
-    #    ssl_certificate      cert.pem;
-    #    ssl_certificate_key  cert.key;
-
-    #    ssl_session_cache    shared:SSL:1m;
-    #    ssl_session_timeout  5m;
-
-    #    ssl_ciphers  HIGH:!aNULL:!MD5;
-    #    ssl_prefer_server_ciphers  on;
-
-    #    location / {
-    #        root   html;
-    #        index  index.html index.htm;
-    #    }
-    #}
     include servers/*;
 }
 ```
